@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cloud Kitchen — Delicious Food, Made for You</title>
+<meta name="description" content="Browse the menu, build your basket, and share your order on WhatsApp, SMS or Email. No login, no fuss.">
+<meta name="theme-color" content="#FDF6EC">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cloud Kitchen">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== APP SHELL (phone-frame on desktop, full-bleed on mobile) ===== -->
+<div class="app-shell">
+
+  <!-- ---------- HOME / ITEM LIST ---------- -->
+  <section class="view" id="view-list" data-view="list">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <h1 class="brand"><svg class="brand-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a3 3 0 0 1 2.9 3.76A3.5 3.5 0 0 1 19 9a3.5 3.5 0 0 1-1.02 2.47c.34.42.52.95.52 1.53a2.5 2.5 0 0 1-1.5 2.29V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-1.71A2.5 2.5 0 0 1 5.5 13c0-.58.18-1.11.52-1.53A3.5 3.5 0 0 1 5 9a3.5 3.5 0 0 1 4.1-3.24A3 3 0 0 1 12 2Z"/><rect x="7" y="19" width="10" height="2.4" rx="1.2" fill="currentColor"/></svg>Cloud Kitchen</h1>
+      <button class="icon-btn cart-btn" id="cartBtnList" aria-label="View basket">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20.4 8H6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="badge" id="badgeList" hidden>0</span>
+      </button>
+    </header>
+
+    <div class="search-row">
+      <svg viewBox="0 0 24 24" width="18" height="18" class="search-icon"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="searchInput" placeholder="Search for food…" aria-label="Search for food">
+    </div>
+
+    <div class="chip-row" id="chipRow" role="tablist" aria-label="Categories"></div>
+
+    <div class="item-list" id="itemList" aria-live="polite"></div>
+
+    <p class="empty-state" id="emptyState" hidden>No items match your search.</p>
+  </section>
+
+  <!-- ---------- ITEM DETAILS ---------- -->
+  <section class="view" id="view-detail" data-view="detail" hidden>
+    <header class="topbar topbar--detail">
+      <button class="icon-btn" id="backFromDetail" aria-label="Back to list">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="topbar-spacer"></span>
+      <button class="icon-btn cart-btn" id="cartBtnDetail" aria-label="View basket">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20.4 8H6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="badge" id="badgeDetail" hidden>0</span>
+      </button>
+    </header>
+    <div class="detail-scroll" id="detailContent"></div>
+  </section>
+
+  <!-- ---------- BASKET ---------- -->
+  <section class="view" id="view-basket" data-view="basket" hidden>
+    <header class="topbar">
+      <button class="icon-btn" id="backFromBasket" aria-label="Back">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 class="brand">Your Basket</h1>
+      <button class="icon-btn" id="clearBasketBtn" aria-label="Clear basket">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </header>
+
+    <div class="basket-scroll" id="basketList"></div>
+
+    <div class="basket-summary" id="basketSummary" hidden>
+      <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">₹0</span></div>
+      <div class="summary-row"><span>Delivery Charges</span><span id="sumDelivery">₹0</span></div>
+      <div class="summary-row summary-total"><span>Total</span><span id="sumTotal">₹0</span></div>
+      <button class="btn btn-primary btn-share" id="shareBasketBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 .1 4.9L8.9 12.1a3 3 0 1 0 0 3.8l6.2 3.2a3 3 0 1 0 .77-1.79l-6.2-3.2a3.1 3.1 0 0 0 0-1.42l6.2-3.2c.32.28.7.5 1.13.6Z" fill="currentColor"/></svg>
+        Share Basket
+      </button>
+      <p class="hint-text">Share your basket with us on WhatsApp, SMS or Email to place your order.</p>
+    </div>
+
+    <div class="empty-basket" id="emptyBasket" hidden>
+      <div class="empty-icon">🧺</div>
+      <p>Your basket is empty</p>
+      <button class="btn btn-outline" id="browseFromEmpty">Browse the menu</button>
+    </div>
+  </section>
+
+  <!-- ---------- ABOUT ---------- -->
+  <section class="view" id="view-about" data-view="about" hidden>
+    <header class="topbar">
+      <span class="topbar-spacer"></span>
+      <h1 class="brand">About</h1>
+      <span class="topbar-spacer"></span>
+    </header>
+    <div class="about-scroll">
+      <div class="about-hero">
+        <svg class="brand-icon-lg" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path fill="currentColor" d="M12 2a3 3 0 0 1 2.9 3.76A3.5 3.5 0 0 1 19 9a3.5 3.5 0 0 1-1.02 2.47c.34.42.52.95.52 1.53a2.5 2.5 0 0 1-1.5 2.29V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-1.71A2.5 2.5 0 0 1 5.5 13c0-.58.18-1.11.52-1.53A3.5 3.5 0 0 1 5 9a3.5 3.5 0 0 1 4.1-3.24A3 3 0 0 1 12 2Z"/><rect x="7" y="19" width="10" height="2.4" rx="1.2" fill="currentColor"/></svg>
+        <h2>Cloud Kitchen</h2>
+        <p>Simple ordering. Share your basket. We cook, you enjoy.</p>
+      </div>
+      <div class="about-card">
+        <h3>Why share your basket?</h3>
+        <p>Perfect for cloud kitchens — customers share their order and you confirm &amp; deliver.</p>
+      </div>
+      <div class="about-card">
+        <h3>No login required</h3>
+        <p>Simple, fast and hassle-free ordering for your customers.</p>
+      </div>
+      <div class="about-card">
+        <h3>Works everywhere</h3>
+        <p>Works on all devices, and installs to your home screen like an app.</p>
+      </div>
+      <button class="btn btn-outline" id="installBtnAbout" hidden>Add Cloud Kitchen to Home Screen</button>
+      <p class="version-text">v1.0 · Built with HTML, CSS &amp; JS</p>
+    </div>
+  </section>
+
+  <!-- ---------- BOTTOM NAV ---------- -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-btn is-active" data-nav="list" aria-label="Home">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" data-nav="basket" aria-label="Basket">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 8h12l-1.2 10.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      <span>Basket</span>
+      <span class="badge nav-badge" id="badgeNav" hidden>0</span>
+    </button>
+    <button class="nav-btn" data-nav="about" aria-label="About">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>About</span>
+    </button>
+  </nav>
+
+  <!-- ---------- SHARE SHEET (bottom sheet, mimics native share) ---------- -->
+  <div class="sheet-overlay" id="shareOverlay" hidden>
+    <div class="sheet" id="shareSheet" role="dialog" aria-modal="true" aria-labelledby="shareSheetTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="shareSheetTitle">Share your basket</h2>
+      <p class="sheet-sub">Choose a platform to share your order.</p>
+      <button class="sheet-option" id="shareWhatsapp">
+        <span class="sheet-icon sheet-icon--whatsapp">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.2-.9.9-.9 2.2s1 2.6 1.1 2.7c.1.2 1.9 3 4.7 4.1.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z"/></svg>
+        </span>
+        WhatsApp
+      </button>
+      <button class="sheet-option" id="shareSms">
+        <span class="sheet-icon sheet-icon--sms">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H8l-4.5 4V6a2 2 0 0 1 2-2Z"/></svg>
+        </span>
+        Messages (SMS)
+      </button>
+      <button class="sheet-option" id="shareEmail">
+        <span class="sheet-icon sheet-icon--email">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1.4 2 7.1 5.6a1 1 0 0 0 1 0L19.6 7H4.4Z"/></svg>
+        </span>
+        Email
+      </button>
+      <button class="sheet-option" id="shareMore">
+        <span class="sheet-icon sheet-icon--more">
+          <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>
+        </span>
+        More options
+      </button>
+      <button class="sheet-cancel" id="shareCancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ---------- COPY TOAST ---------- -->
+  <div class="toast" id="toast" hidden></div>
+
+  <!-- ---------- INSTALL BANNER (first-open prompt) ---------- -->
+  <div class="install-banner" id="installBanner" hidden>
+    <img src="assets/icons/icon-192.png" alt="" width="40" height="40">
+    <div class="install-copy">
+      <strong>Add Cloud Kitchen to your Home Screen</strong>
+      <span id="installCopySub">Order faster, right from your home screen — no app store needed.</span>
+    </div>
+    <div class="install-actions">
+      <button class="btn btn-primary btn-sm" id="installNowBtn">Add</button>
+      <button class="icon-btn" id="installDismissBtn" aria-label="Dismiss">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

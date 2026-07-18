@@ -1,0 +1,123 @@
+{
+  "kitchenName": "Cloud Kitchen",
+  "tagline": "Delicious Food, Made for You",
+  "currency": "₹",
+  "deliveryCharge": 40,
+  "shareContacts": {
+    "whatsapp": "919876543210",
+    "email": "order@cloudkitchen.com"
+  },
+  "categories": ["All", "Main Course", "Beverages", "Sides"],
+  "items": [
+    {
+      "id": "veg-biryani",
+      "name": "Veg Biryani",
+      "category": "Main Course",
+      "price": 220,
+      "shortDescription": "Aromatic basmati rice cooked with veggies & spices.",
+      "description": "Aromatic basmati rice cooked with fresh vegetables, spices, and herbs. Served with raita.",
+      "ingredients": "Basmati rice, Carrot, Beans, Peas, Onion, Tomato, Spices, Mint, Coriander",
+      "allergens": "May contain traces of nuts.",
+      "image": "assets/img/veg-biryani.svg"
+    },
+    {
+      "id": "paneer-butter-masala",
+      "name": "Paneer Butter Masala",
+      "category": "Main Course",
+      "price": 240,
+      "shortDescription": "Creamy tomato gravy with cottage cheese.",
+      "description": "Soft paneer cubes simmered in a rich, buttery tomato gravy finished with cream.",
+      "ingredients": "Paneer, Tomato, Butter, Cream, Cashew, Spices",
+      "allergens": "Contains dairy and nuts.",
+      "image": "assets/img/paneer-butter-masala.svg"
+    },
+    {
+      "id": "chicken-curry",
+      "name": "Chicken Curry",
+      "category": "Main Course",
+      "price": 250,
+      "shortDescription": "Spicy and flavourful chicken curry.",
+      "description": "Tender chicken cooked in a spiced onion-tomato masala with a slow-simmered depth of flavour.",
+      "ingredients": "Chicken, Onion, Tomato, Ginger-Garlic, Spices",
+      "allergens": "None.",
+      "image": "assets/img/chicken-curry.svg"
+    },
+    {
+      "id": "butter-chicken",
+      "name": "Butter Chicken",
+      "category": "Main Course",
+      "price": 260,
+      "shortDescription": "Classic creamy tomato butter chicken.",
+      "description": "Char-grilled chicken tossed in a velvety tomato and butter gravy, mildly spiced.",
+      "ingredients": "Chicken, Tomato, Butter, Cream, Kasuri methi, Spices",
+      "allergens": "Contains dairy.",
+      "image": "assets/img/butter-chicken.svg"
+    },
+    {
+      "id": "dal-makhani",
+      "name": "Dal Makhani",
+      "category": "Main Course",
+      "price": 200,
+      "shortDescription": "Slow-cooked black lentils in butter & cream.",
+      "description": "Whole black lentils and kidney beans simmered overnight, finished with butter and cream.",
+      "ingredients": "Black lentils, Kidney beans, Butter, Cream, Tomato, Spices",
+      "allergens": "Contains dairy.",
+      "image": "assets/img/dal-makhani.svg"
+    },
+    {
+      "id": "garlic-naan",
+      "name": "Garlic Naan",
+      "category": "Sides",
+      "price": 60,
+      "shortDescription": "Soft naan with garlic & herbs.",
+      "description": "Hand-stretched tandoor naan topped with roasted garlic and fresh coriander.",
+      "ingredients": "Refined flour, Garlic, Butter, Yogurt, Coriander",
+      "allergens": "Contains gluten and dairy.",
+      "image": "assets/img/garlic-naan.svg"
+    },
+    {
+      "id": "french-fries",
+      "name": "French Fries",
+      "category": "Sides",
+      "price": 90,
+      "shortDescription": "Crispy golden fries, lightly salted.",
+      "description": "Crunchy on the outside, soft on the inside — served hot with a side of ketchup.",
+      "ingredients": "Potato, Salt, Oil",
+      "allergens": "None.",
+      "image": "assets/img/french-fries.svg"
+    },
+    {
+      "id": "papad",
+      "name": "Papad",
+      "category": "Sides",
+      "price": 30,
+      "shortDescription": "Roasted or fried thin lentil crisp.",
+      "description": "A crisp, thin lentil wafer, roasted for a light and crunchy bite.",
+      "ingredients": "Lentil flour, Spices",
+      "allergens": "May contain traces of gluten.",
+      "image": "assets/img/papad.svg"
+    },
+    {
+      "id": "masala-chai",
+      "name": "Masala Chai",
+      "category": "Beverages",
+      "price": 40,
+      "shortDescription": "Spiced Indian tea, brewed fresh.",
+      "description": "Strong black tea brewed with milk and warming spices like cardamom, ginger, and clove.",
+      "ingredients": "Tea leaves, Milk, Cardamom, Ginger, Clove",
+      "allergens": "Contains dairy.",
+      "image": "assets/img/masala-chai.svg"
+    },
+    {
+      "id": "mango-lassi",
+      "name": "Mango Lassi",
+      "category": "Beverages",
+      "price": 80,
+      "shortDescription": "Chilled mango yogurt smoothie.",
+      "description": "A refreshing, chilled smoothie made with ripe mango pulp and thick, creamy yogurt.",
+      "ingredients": "Mango pulp, Yogurt, Sugar",
+      "allergens": "Contains dairy.",
+      "image": "assets/img/mango-lassi.svg"
+    }
+  ]
+}
