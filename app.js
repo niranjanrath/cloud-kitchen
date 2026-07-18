@@ -59,21 +59,81 @@
     return { view: "list" };
   }
 
+  let activeViewName = null;      // currently-shown view, for transition bookkeeping
+  let viewTransitionTimer = null;
+
   function renderRoute() {
     const route = currentRoute();
-    showView(route.view);
     if (route.view === "detail") {
       currentDetailId = route.id;
-      renderDetail(route.id);
+      renderDetail(route.id);       // render content before it animates in
     }
     if (route.view === "basket") renderBasket();
+    showView(route.view);
     setActiveNav(route.view === "detail" ? "list" : route.view);
-    window.scrollTo(0, 0);
   }
 
+  function viewEl(name) { return $(`.view[data-view="${name}"]`); }
+
   function showView(view) {
-    $$(".view").forEach(v => { v.hidden = v.dataset.view !== view; });
     $("#bottomNav").style.display = (view === "detail") ? "none" : "flex";
+
+    if (activeViewName === view) return;
+    const newEl = viewEl(view);
+    const oldEl = activeViewName ? viewEl(activeViewName) : null;
+    if (!newEl) return;
+
+    // If a previous transition is still finishing, snap it to completion first.
+    if (viewTransitionTimer) { clearTimeout(viewTransitionTimer); viewTransitionTimer = null; }
+    $$(".view").forEach(v => { if (v !== newEl && v !== oldEl) v.hidden = true; });
+
+    const isDrillNav = (view === "detail" || activeViewName === "detail");
+    const goingForward = view === "detail"; // list -> detail counts as "forward"
+
+    newEl.hidden = false;
+    newEl.style.transition = "none";
+    newEl.style.opacity = isDrillNav ? "1" : "0";
+    newEl.style.transform = isDrillNav ? (goingForward ? "translateX(100%)" : "translateX(-24%)") : "translateX(0)";
+    if (oldEl) {
+      oldEl.classList.add("is-leaving");
+      oldEl.style.transition = "none";
+      oldEl.style.transform = "translateX(0)";
+      oldEl.style.opacity = "1";
+    }
+    // Force layout so the browser registers the "from" state before we animate to the "to" state.
+    // eslint-disable-next-line no-unused-expressions
+    newEl.offsetHeight;
+
+    requestAnimationFrame(() => {
+      newEl.style.transition = "";
+      newEl.style.transform = "translateX(0)";
+      newEl.style.opacity = "1";
+      if (oldEl) {
+        oldEl.style.transition = "";
+        if (isDrillNav) {
+          oldEl.style.transform = goingForward ? "translateX(-24%)" : "translateX(100%)";
+          oldEl.style.opacity = "1";
+        } else {
+          oldEl.style.transform = "translateX(0)";
+          oldEl.style.opacity = "0";
+        }
+      }
+    });
+
+    viewTransitionTimer = setTimeout(() => {
+      if (oldEl) {
+        oldEl.hidden = true;
+        oldEl.classList.remove("is-leaving");
+        oldEl.style.transform = "";
+        oldEl.style.opacity = "";
+      }
+      newEl.style.transform = "";
+      newEl.style.opacity = "";
+      viewTransitionTimer = null;
+    }, 300);
+
+    activeViewName = view;
+    window.scrollTo(0, 0);
   }
 
   function setActiveNav(view) {
