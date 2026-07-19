@@ -69,6 +69,7 @@
       renderDetail(route.id);       // render content before it animates in
     }
     if (route.view === "basket") renderBasket();
+    if (route.view === "list") renderList();   // reflect any basket changes made elsewhere (e.g. removals in Basket)
     showView(route.view);
     setActiveNav(route.view === "detail" ? "list" : route.view);
   }
@@ -432,8 +433,9 @@
 
     $("#cartBtnList").addEventListener("click", () => go("basket"));
     $("#cartBtnDetail").addEventListener("click", () => go("basket"));
-    $("#backFromDetail").addEventListener("click", () => history.back());
-    $("#backFromBasket").addEventListener("click", () => history.back());
+    $("#backFromDetail").addEventListener("click", () => go("list"));
+    $("#backFromBasket").addEventListener("click", () => go("list"));
+    $("#backFromAbout").addEventListener("click", () => go("list"));
     $("#browseFromEmpty").addEventListener("click", () => go("list"));
 
     $("#clearBasketBtn").addEventListener("click", () => {
