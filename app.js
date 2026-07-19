@@ -12,6 +12,10 @@
   const BASKET_KEY = "ck_basket_v1";
   let basket = loadBasket();       // { [itemId]: qty }
 
+  const PROFILE_KEY = "ck_profile_v1";
+  let profile = loadProfile();     // { name, phone, address, lat, lng } | null
+  let profileOnboardingActive = false; // true while the mandatory first-run profile screen is blocking the app
+
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -31,6 +35,25 @@
   }
   function basketCount() {
     return Object.values(basket).reduce((a, b) => a + b, 0);
+  }
+
+  function loadProfile() {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function saveProfile(p) {
+    profile = p;
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch (e) { /* ignore */ }
+  }
+  // A profile only "counts" once it has at least a name or phone — an
+  // empty/skipped record still lives in storage so we don't re-nag forever,
+  // but it shouldn't count as a real profile for display purposes.
+  function hasUsableProfile() {
+    return !!(profile && (profile.name || profile.phone || profile.address));
   }
 
   /* ---------------------------------------------------------
@@ -56,6 +79,7 @@
     if (h.startsWith("item/")) return { view: "detail", id: h.slice(5) };
     if (h === "basket") return { view: "basket" };
     if (h === "about") return { view: "about" };
+    if (h === "profile") return { view: "profile" };
     return { view: "list" };
   }
 
@@ -70,14 +94,15 @@
     }
     if (route.view === "basket") renderBasket();
     if (route.view === "list") renderList();   // reflect any basket changes made elsewhere (e.g. removals in Basket)
+    if (route.view === "profile") renderProfileForm();
     showView(route.view);
-    setActiveNav(route.view === "detail" ? "list" : route.view);
+    setActiveNav(route.view === "detail" || route.view === "profile" ? "list" : route.view);
   }
 
   function viewEl(name) { return $(`.view[data-view="${name}"]`); }
 
   function showView(view) {
-    $("#bottomNav").style.display = (view === "detail") ? "none" : "flex";
+    $("#bottomNav").style.display = (view === "detail" || (view === "profile" && profileOnboardingActive)) ? "none" : "flex";
 
     if (activeViewName === view) return;
     const newEl = viewEl(view);
@@ -271,6 +296,97 @@
   }
 
   /* ---------------------------------------------------------
+     RENDER: PROFILE (onboarding on first launch, or edit later)
+  --------------------------------------------------------- */
+  function renderProfileForm() {
+    const p = profile || {};
+    $("#profileName").value = p.name || "";
+    $("#profilePhone").value = p.phone || "";
+    $("#profileAddress").value = p.address || "";
+
+    $("#profileIntro").hidden = !profileOnboardingActive;
+    $("#profileTitle").textContent = profileOnboardingActive ? "Welcome!" : "My Profile";
+    $("#backFromProfile").hidden = profileOnboardingActive;
+    $("#profileSkipBtn").hidden = !profileOnboardingActive;
+    $("#profileSaveBtn").textContent = profileOnboardingActive ? "Save & Continue" : "Save Profile";
+    $("#locationStatus").textContent = "We'll ask your browser for permission — your address is only stored on this device.";
+    $("#locationStatus").className = "field-hint";
+  }
+
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) {
+      $("#locationStatus").textContent = "Location isn't available on this device — please type your address instead.";
+      $("#locationStatus").className = "field-hint is-error";
+      return;
+    }
+    const btn = $("#useLocationBtn");
+    btn.classList.add("is-loading");
+    $("#useLocationBtnLabel").textContent = "Detecting your location…";
+    $("#locationStatus").textContent = "Requesting location permission…";
+    $("#locationStatus").className = "field-hint";
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        $("#useLocationBtnLabel").textContent = "Looking up your address…";
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          const addr = data && data.display_name;
+          if (addr) {
+            $("#profileAddress").value = addr;
+            $("#locationStatus").textContent = "Address detected from your current location.";
+            $("#locationStatus").className = "field-hint is-success";
+          } else {
+            throw new Error("no address in response");
+          }
+        } catch (e) {
+          $("#profileAddress").value = `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`;
+          $("#locationStatus").textContent = "Got your coordinates, but couldn't look up the address automatically — feel free to edit it.";
+          $("#locationStatus").className = "field-hint is-error";
+        } finally {
+          btn.classList.remove("is-loading");
+          $("#useLocationBtnLabel").textContent = "Use my current location";
+        }
+      },
+      (err) => {
+        btn.classList.remove("is-loading");
+        $("#useLocationBtnLabel").textContent = "Use my current location";
+        const msg = err && err.code === 1
+          ? "Location permission was denied — you can still type your address below."
+          : "Couldn't get your location — you can still type your address below.";
+        $("#locationStatus").textContent = msg;
+        $("#locationStatus").className = "field-hint is-error";
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  function handleProfileSubmit(e) {
+    e.preventDefault();
+    const name = $("#profileName").value.trim();
+    const phone = $("#profilePhone").value.trim();
+    const address = $("#profileAddress").value.trim();
+    if (!name || !phone) {
+      $("#locationStatus").textContent = "Please add at least your name and phone number.";
+      $("#locationStatus").className = "field-hint is-error";
+      return;
+    }
+    saveProfile({ name, phone, address });
+    showToast("Profile saved");
+    profileOnboardingActive = false;
+    go("list");
+  }
+
+  function handleProfileSkip() {
+    // Store an (empty-ish) record so we don't re-prompt on every visit,
+    // while leaving hasUsableProfile() false until real details are added.
+    saveProfile(profile || { name: "", phone: "", address: "" });
+    profileOnboardingActive = false;
+    go("list");
+  }
+
+  /* ---------------------------------------------------------
      BASKET LOGIC
   --------------------------------------------------------- */
   function addToBasket(id, delta) {
@@ -345,9 +461,20 @@
     });
     const delivery = ids.length ? DATA.deliveryCharge : 0;
     const total = subtotal + delivery;
+
+    const customerLines = [];
+    if (hasUsableProfile()) {
+      customerLines.push("Customer Details");
+      if (profile.name) customerLines.push(`Name: ${profile.name}`);
+      if (profile.phone) customerLines.push(`Phone: ${profile.phone}`);
+      if (profile.address) customerLines.push(`Delivery Address: ${profile.address}`);
+      customerLines.push("");
+    }
+
     return [
       `Hi! Please find my order from ${DATA.kitchenName} 😊`,
       "",
+      ...customerLines,
       "Order Summary",
       ...lines,
       "",
@@ -460,7 +587,17 @@
     $("#shareEmail").addEventListener("click", () => handleShare("email"));
     $("#shareMore").addEventListener("click", () => handleShare("more"));
 
-    $("#menuBtn").addEventListener("click", () => go("about"));
+    $("#menuBtn").addEventListener("click", () => { $("#menuOverlay").hidden = false; });
+    $("#menuCancel").addEventListener("click", () => { $("#menuOverlay").hidden = true; });
+    $("#menuOverlay").addEventListener("click", (e) => { if (e.target === $("#menuOverlay")) $("#menuOverlay").hidden = true; });
+    $("#menuProfileBtn").addEventListener("click", () => { $("#menuOverlay").hidden = true; go("profile"); });
+    $("#menuAboutBtn").addEventListener("click", () => { $("#menuOverlay").hidden = true; go("about"); });
+    $("#editProfileFromAbout").addEventListener("click", () => go("profile"));
+
+    $("#backFromProfile").addEventListener("click", () => go("list"));
+    $("#profileForm").addEventListener("submit", handleProfileSubmit);
+    $("#useLocationBtn").addEventListener("click", useMyLocation);
+    $("#profileSkipBtn").addEventListener("click", handleProfileSkip);
 
     window.addEventListener("hashchange", renderRoute);
   }
@@ -570,7 +707,17 @@
     wireEvents();
     wireInstallEvents();
     registerServiceWorker();
-    renderRoute();
+
+    if (!profile) {
+      // First launch ever (or storage was cleared): require a quick profile
+      // step before the rest of the app is reachable.
+      profileOnboardingActive = true;
+      if (currentRoute().view !== "profile") go("profile", true);
+      else renderRoute();
+    } else {
+      renderRoute();
+    }
+
     setTimeout(maybeShowInstallBanner, 1200); // small delay so it doesn't feel jarring on first open
   }
 

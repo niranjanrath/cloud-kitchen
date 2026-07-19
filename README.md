@@ -12,9 +12,10 @@ offline, can be added to the home screen like a native app).
 - **Item List** — browse all items with image, name, price, short description, category filter chips, and search.
 - **Item Details** — full description, ingredients, allergens, quantity picker.
 - **Basket** — add/update/remove items, live subtotal + delivery + total.
-- **Share Basket** — a share sheet (WhatsApp / SMS / Email / more) that opens a pre-filled message with the order summary. Falls back to the native Web Share sheet or clipboard copy where supported.
+- **Customer Profile** — on first launch, a short onboarding screen asks for name, phone, and delivery address (with a "Use my current location" button that requests browser location permission and reverse-geocodes it to a street address via OpenStreetMap Nominatim). Stored in `localStorage` on the device — editable anytime from the hamburger menu → **My Profile** (or the "Edit My Profile" shortcut on the About page). If storage is ever cleared, the onboarding step runs again automatically.
+- **Share Basket** — a share sheet (WhatsApp / SMS / Email / more) that opens a pre-filled message including the customer's name, phone, and address (when available) plus the order summary. Falls back to the native Web Share sheet or clipboard copy where supported.
 - **Installable PWA** — a manifest + service worker let people add the app to their home screen and browse the menu offline. On first visit, a banner invites the user to install (with iOS-specific "Add to Home Screen" instructions, since iOS Safari has no native install prompt).
-- **No backend** — all menu content lives in `items.json`; the basket is stored in the browser's `localStorage`.
+- **No backend** — all menu content lives in `items.json`; the basket and profile are stored in the browser's `localStorage`.
 
 ## File structure
 
@@ -69,4 +70,5 @@ No build step is required — it's static files, so Pages serves it as-is.
 
 - The service worker uses **relative paths**, so it works correctly whether the site is hosted at the domain root or a GitHub Pages project subpath (`/repo-name/`).
 - If you update `items.json` or any static file after publishing, bump `CACHE_NAME` in `service-worker.js` (e.g. `cloud-kitchen-v2`) so returning visitors pick up the new version instead of a cached copy.
+- The "Use my current location" button reverse-geocodes via the free public **OpenStreetMap Nominatim** API (no key needed). It's fine for personal/low-traffic use, but Nominatim's usage policy limits request volume for production/commercial traffic — for a busier cloud kitchen, swap the `fetch(...)` call in `useMyLocation()` inside `app.js` for Google's Geocoding API or Mapbox (both need an API key).
 - Menu photos here are simple flat-illustration placeholders (SVG) so the app has zero external dependencies and works fully offline. Swap in real food photography by replacing the files in `assets/img/` and updating the `image` path per item — JPG/PNG/WebP all work.

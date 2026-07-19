@@ -1,4 +1,4 @@
-const CACHE_NAME = "cloud-kitchen-v1";
+const CACHE_NAME = "cloud-kitchen-v2";
 
 // Paths are relative to the service worker's own location, so this keeps
 // working when hosted at a GitHub Pages project subpath (e.g. /repo-name/).
